@@ -49,7 +49,7 @@ case $SEARCH_METHOD_FLAG in
     exit 0
     ;;
   "--version")
-    echo "niri-scratchpad v1.0.0"
+    echo "niri-scratchpad v0.0.1"
     exit 0
     ;;
   *)

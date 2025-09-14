@@ -17,10 +17,24 @@ inputs = {
 }
 ```
 
-Access the package via.
+Access the package via `niri-scratchpad` or `default`.
 
 ```nix
 inputs.niri-scratchpad-flake.packages.${system}.niri-scratchpad;
+```
+
+Only available for Linux systems, see `nix flake show`.
+
+```console
+$ nix flake show --all-systems
+git+file:///home/gvolpe/workspace/niri-scratchpad
+└───packages
+    ├───aarch64-linux
+    │   ├───default: package 'niri-scratchpad'
+    │   └───niri-scratchpad: package 'niri-scratchpad'
+    └───x86_64-linux
+        ├───default: package 'niri-scratchpad'
+        └───niri-scratchpad: package 'niri-scratchpad'
 ```
 
 If Nix is not your jam, simply copy the [scratchpad.sh](./src/scratchpad.sh) into your system and give it execution permissions (`chmod +x scratchpad.sh`). Even if you're on Nix, have a look at the script source code :)
