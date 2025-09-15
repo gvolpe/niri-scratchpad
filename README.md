@@ -80,4 +80,21 @@ Given the fact that Niri doesn't support "hidden" workspaces, this solution impo
 
 If you rely on accessing your workspaces by index (e.g. `Mod+2`, `Mod+3`) and don't explicitly declare your workspaces in your configuration, then it means you're relying on dynamic workspaces, which is the default in Niri.
 
-Declaring only the "scratch" workspace and leaving everything else as dynamic still works, but you can't expect your indices to remain the same. So always declare all your workspaces explicitly if you'd like the indices to be predictable.
+Declaring only the "scratch" workspace and leaving everything else as dynamic still works, but you can't expect your indices to remain the same. So always declare all your workspaces explicitly (see [Named Workspaces](https://yalter.github.io/niri/Configuration%3A-Named-Workspaces.html)) if you'd like the indices to be predictable.
+
+Nevertheless, a better approach is to access your workspaces by name instead, e.g.
+
+```kdl
+workspace "web"
+workspace "dev"
+workspace "scratch"
+
+binds {
+    Mod+1 { focus-workspace "web"; }
+    Mod+2 { focus-workspace "dev"; }
+    Mod+Shift+1 { move-window-to-workspace "web"; }
+    Mod+Shift+2 { move-window-to-workspace "dev"; }
+}
+```
+
+By using named workspaces, we also get to enjoy dynamic workspaces. See [addressing workspaces by index](https://yalter.github.io/niri/Workspaces.html#addressing-workspaces-by-index) in the official docs for more.
