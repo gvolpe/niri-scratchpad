@@ -37,12 +37,14 @@ showHelp() {
   echo "  NOTE: when using the '--spawn' flag, you MUST indicate either '--app-id' or 'title' flag as well."
 }
 
+windows=$(niri msg -j windows)
+
 case $SEARCH_METHOD_FLAG in
   "--app-id")
-    windows=$(niri msg -j windows | jq ".[] | select(.app_id == \"$SCRATCH_WIN_NAME\")")
+    app_window=$(echo "$windows" | jq ".[] | select(.app_id == \"$SCRATCH_WIN_NAME\")")
     ;;
   "--title")
-    windows=$(niri msg -j windows | jq ".[] | select(.title == \"$SCRATCH_WIN_NAME\")")
+    app_window=$(echo "$windows" | jq ".[] | select(.title == \"$SCRATCH_WIN_NAME\")")
     ;;
   "--help")
     showHelp
@@ -54,16 +56,11 @@ case $SEARCH_METHOD_FLAG in
     ;;
   *)
     SCRATCH_WIN_NAME=$1
-    windows=$(niri msg -j windows | jq ".[] | select(.app_id == \"$SCRATCH_WIN_NAME\")")
+    app_window=$(echo "$windows" | jq ".[] | select(.app_id == \"$SCRATCH_WIN_NAME\")")
     ;;
 esac
 
-moveWindowToScratchpad() {
-  niri msg action move-window-to-workspace --window-id "$win_id" "$SCRATCH_WORKSPACE_NAME" --focus=false
-  niri msg action move-window-to-tiling --id "$win_id"
-}
-
-win_id=$(echo "$windows" | jq .id)
+win_id=$(echo "$app_window" | jq .id)
 
 if [[ -z $win_id ]]; then
   case $SPAWN_FLAG in
@@ -83,18 +80,26 @@ if [[ -z $win_id ]]; then
   esac
 fi
 
-is_win_focused=$(echo "$windows" | jq .is_focused)
+moveWindowToScratchpad() {
+  niri msg action move-window-to-workspace --window-id "$win_id" "$SCRATCH_WORKSPACE_NAME" --focus=false
+}
 
-if [[ $is_win_focused == "false" ]]; then
+bringScratchpadWindowToFocus() {
+  if [[ $(echo "$app_window" | jq .is_floating) == "false" ]]; then
+    niri msg action move-window-to-floating --id "$win_id"
+  fi
+  niri msg action move-window-to-workspace --window-id "$win_id" "$work_id"
+  niri msg action focus-window --id "$win_id"
+}
+
+if [[ $(echo "$app_window" | jq .is_focused) == "false" ]]; then
   work_id=$(niri msg -j workspaces | jq '.[] | select(.is_focused == true)' | jq .idx)
-  win_work_id=$(echo "$windows" | jq .workspace_id)
+  win_work_id=$(echo "$app_window" | jq .workspace_id)
 
   if [[ "$win_work_id" == "$work_id" ]]; then
     moveWindowToScratchpad
   else
-    niri msg action move-window-to-workspace --window-id "$win_id" "$work_id"
-    niri msg action move-window-to-floating --id "$win_id"
-    niri msg action focus-window --id "$win_id"
+    bringScratchpadWindowToFocus
   fi
 else
   moveWindowToScratchpad
