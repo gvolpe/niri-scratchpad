@@ -72,6 +72,10 @@ binds {
 
 Both `spotify` and `nemo` are spawned at startup by Niri, but the Audacious application is not. So we can indicate that if the process does not yet exist, it should be spawned (internally done via `niri msg spawn`).
 
+NOTE: a spawned window via the `--spawn` flag can't be made floating the first time it's brought up, but it will be from the second time onwards, due to a known limitation. If you would like to avoid this, you can either fix it via a window rule, or by letting Niri start the process at startup instead.
+
+To further enhance your experience, you may consider a second script resizing your scratchpad windows and placing them at the XY location you wish when Niri starts up. [Example](https://github.com/gvolpe/nix-config/blob/9af91fee7757645aac6fef9ed5ba76128cbcbd97/home/wm/niri/scripts.nix#L17).
+
 ## Known Limitations
 
 Given the fact that Niri doesn't support "hidden" workspaces, this solution imposes a few caveats. First of all, the "scratch" workspace will always be visible if you scroll all the way down to your last workspace, it can't be hidden.
