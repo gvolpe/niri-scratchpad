@@ -82,13 +82,17 @@ fi
 
 moveWindowToScratchpad() {
   niri msg action move-window-to-workspace --window-id "$win_id" "$SCRATCH_WORKSPACE_NAME" --focus=false
+  if [[ -n $NIRI_SCRATCHPAD_ANIMATIONS ]]; then
+    niri msg action move-window-to-tiling --id "$win_id"
+  fi
 }
 
 bringScratchpadWindowToFocus() {
-  if [[ $(echo "$app_window" | jq .is_floating) == "false" ]]; then
+  is_win_floating=$(echo "$app_window" | jq .is_floating)
+  niri msg action move-window-to-workspace --window-id "$win_id" "$work_id"
+  if [[ $is_win_floating == "false" && -n $NIRI_SCRATCHPAD_ANIMATIONS ]]; then
     niri msg action move-window-to-floating --id "$win_id"
   fi
-  niri msg action move-window-to-workspace --window-id "$win_id" "$work_id"
   niri msg action focus-window --id "$win_id"
 }
 

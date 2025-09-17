@@ -60,21 +60,40 @@ For a better experience, *declare all your workspaces explicitly* and add the "s
 
 In this example, we create a window rule so that both `spotify` and `nemo` are spawned in the "scratch" workspace. Additionally, we spawn these processes at startup. 
 
-Next, we have our scratchpad key-bindings.
+Next, we have our scratchpad keybindings.
 
 ```kdl
 binds {
     Mod+Ctrl+S { spawn-sh "niri-scratchpad spotify"; }
     Mod+Ctrl+F { spawn-sh "niri-scratchpad --app-id nemo"; }
+}
+```
+
+Both `spotify` and `nemo` are spawned at startup by Niri (via `spawn-at-startup`).
+
+To further enhance your experience, you may consider a second script resizing your scratchpad windows and placing them at the XY location you wish when Niri starts up. [Example](https://github.com/gvolpe/nix-config/blob/9af91fee7757645aac6fef9ed5ba76128cbcbd97/home/wm/niri/scripts.nix#L17).
+
+### Spawn
+
+In the following example, we have a keybinding for the Audacious application, which is not spawned by Niri. So we can indicate that if the process does not yet exist, it should be spawned by `niri-scratchpad` (internally done via `niri msg spawn`).
+
+```kdl
+binds {
     Mod+Ctrl+A { spawn-sh "niri-scratchpad --app-id Audacious --spawn audacious"; }
 }
 ```
 
-Both `spotify` and `nemo` are spawned at startup by Niri, but the Audacious application is not. So we can indicate that if the process does not yet exist, it should be spawned (internally done via `niri msg spawn`).
+**NOTE**: a spawned window via the `--spawn` flag can't be made floating the first time it's brought up, but it will be from the second time onwards, due to a known limitation. If you would like to avoid this, you can either fix it via a window rule, or by letting Niri start the process at startup instead.
 
-NOTE: a spawned window via the `--spawn` flag can't be made floating the first time it's brought up, but it will be from the second time onwards, due to a known limitation. If you would like to avoid this, you can either fix it via a window rule, or by letting Niri start the process at startup instead.
+### Animations
 
-To further enhance your experience, you may consider a second script resizing your scratchpad windows and placing them at the XY location you wish when Niri starts up. [Example](https://github.com/gvolpe/nix-config/blob/9af91fee7757645aac6fef9ed5ba76128cbcbd97/home/wm/niri/scripts.nix#L17).
+By default, scratchpad animations are disabled. To enable them, set the `NIRI_SCRATCHPAD_ANIMATIONS` environment variable to any value, e.g.
+
+```console
+NIRI_SCRATCHPAD_ANIMATIONS=true niri-scratchpad nemo
+```
+
+The animation is achieved by switching the scratchpad window to tiling mode when it's moved to the scratch workspace, and subsequently making it a floating window when it's summoned.
 
 ## Known Limitations
 
