@@ -89,7 +89,8 @@ moveWindowToScratchpad() {
 
 bringScratchpadWindowToFocus() {
   is_win_floating=$(echo "$app_window" | jq .is_floating)
-  niri msg action move-window-to-workspace --window-id "$win_id" "$work_id"
+  niri msg action move-window-to-monitor --id "$win_id" "$output_id"
+  niri msg action move-window-to-workspace --window-id "$win_id" "$work_idx"
   if [[ $is_win_floating == "false" && -n $NIRI_SCRATCHPAD_ANIMATIONS ]]; then
     niri msg action move-window-to-floating --id "$win_id"
   fi
@@ -97,10 +98,15 @@ bringScratchpadWindowToFocus() {
 }
 
 if [[ $(echo "$app_window" | jq .is_focused) == "false" ]]; then
-  work_id=$(niri msg -j workspaces | jq '.[] | select(.is_focused == true)' | jq .idx)
+  focused_workspaces=$(niri msg -j workspaces | jq '.[] | select(.is_focused == true)')
+  work_id=$(echo "$focused_workspaces" | jq .id)
+  work_idx=$(echo "$focused_workspaces" | jq .idx)
+  output_id=$(echo "$focused_workspaces" | jq -r .output)
   win_work_id=$(echo "$app_window" | jq .workspace_id)
+  win_output=$(echo "$app_window" | jq .output)
+  win_work_id_global=$(niri msg -j workspaces | jq ".[] | select(.idx == $win_work_id and .output==$win_output)" | jq .id)
 
-  if [[ "$win_work_id" == "$work_id" ]]; then
+  if [[ "$win_work_id_global" == "$work_id" ]]; then
     moveWindowToScratchpad
   else
     bringScratchpadWindowToFocus
