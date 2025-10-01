@@ -71,7 +71,17 @@ binds {
 
 Both `spotify` and `nemo` are spawned at startup by Niri (via `spawn-at-startup`).
 
-To further enhance your experience, you may consider a second script resizing your scratchpad windows and placing them at the XY location you wish when Niri starts up. [Example](https://github.com/gvolpe/nix-config/blob/9af91fee7757645aac6fef9ed5ba76128cbcbd97/home/wm/niri/scripts.nix#L17).
+To further enhance your experience, consider setting the size of your scratchpad windows, e.g.
+
+```kdl
+window-rule {
+    match app-id="nemo"
+    open-on-workspace "scratch"
+    open-floating true
+    default-column-width { fixed 1157; }
+    default-window-height { fixed 736; }
+}
+```
 
 ### Spawn
 
