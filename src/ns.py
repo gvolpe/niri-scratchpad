@@ -20,9 +20,11 @@ def move_window_to_scratchpad(animations):
     if animations:
         niri_cmd(["move-window-to-tiling", "--id", str(scratch_window["id"])])
 
-def bring_scratchpad_window_to_focus(workspace_idx, animations):
+def bring_scratchpad_window_to_focus(args, workspace_idx, output_id):
     niri_cmd(["move-window-to-workspace", "--window-id", str(scratch_window["id"]), str(workspace_idx)])
-    if animations and not scratch_window["is_floating"]:
+    if args.multi_monitor:
+        niri_cmd(["move-window-to-monitor", "--id", str(scratch_window["id"]), output_id])
+    if args.animations and not scratch_window["is_floating"]:
         niri_cmd(["move-window-to-floating", "--id", str(scratch_window["id"])])
     niri_cmd(["focus-window", "--id", str(scratch_window["id"])])
 
@@ -76,7 +78,7 @@ def ns(parser):
 
         # the window is not in the focused workspace
         if scratch_window["workspace_id"] != workspace_id:
-            bring_scratchpad_window_to_focus(workspace_idx, args.animations)
+            bring_scratchpad_window_to_focus(args, workspace_idx, output_id)
             return
 
     move_window_to_scratchpad(args.animations)

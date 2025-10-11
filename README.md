@@ -123,7 +123,7 @@ The animation is achieved by switching the scratchpad window to tiling mode when
 
 ### Multiple monitors
 
-Multi-monitor support is coming soon and it can be enabled via the `multi-monitor` or `-m` flags. It is disabled by default because it requires e few extra IPC commands.
+Multi-monitor support is coming soon and it can be enabled via the `multi-monitor` or `-m` flags. It is disabled by default because it requires an extra IPC command.
 
 ## Known Limitations
 
