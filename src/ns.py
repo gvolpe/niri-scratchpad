@@ -9,24 +9,26 @@ import sys
 
 # the found scratchpad window (id, workspace_id, is_focused, is_floating)
 scratch_window = {}
+# the focused workspace data
+focused_workspace = {}
 # the scratchpad workspace name
 scratch_workspace = os.getenv("NS_WORKSPACE", "scratch")
 
 def niri_cmd(cmd_args):
     subprocess.run(["niri", "msg", "action"] + cmd_args)
 
-def move_window_to_scratchpad(animations):
-    niri_cmd(["move-window-to-workspace", "--window-id", str(scratch_window["id"]), scratch_workspace, "--focus=false"])
+def move_window_to_scratchpad(window_id, animations):
+    niri_cmd(["move-window-to-workspace", "--window-id", str(window_id), scratch_workspace, "--focus=false"])
     if animations:
-        niri_cmd(["move-window-to-tiling", "--id", str(scratch_window["id"])])
+        niri_cmd(["move-window-to-tiling", "--id", str(window_id)])
 
-def bring_scratchpad_window_to_focus(args, workspace_idx, output_id):
-    niri_cmd(["move-window-to-workspace", "--window-id", str(scratch_window["id"]), str(workspace_idx)])
+def bring_scratchpad_window_to_focus(window_id, args):
+    niri_cmd(["move-window-to-workspace", "--window-id", str(window_id), str(focused_workspace["idx"])])
     if args.multi_monitor:
-        niri_cmd(["move-window-to-monitor", "--id", str(scratch_window["id"]), output_id])
+        niri_cmd(["move-window-to-monitor", "--id", str(window_id), focused_workspace["output"]])
     if args.animations and not scratch_window["is_floating"]:
-        niri_cmd(["move-window-to-floating", "--id", str(scratch_window["id"])])
-    niri_cmd(["focus-window", "--id", str(scratch_window["id"])])
+        niri_cmd(["move-window-to-floating", "--id", str(window_id)])
+    niri_cmd(["focus-window", "--id", str(window_id)])
 
 def find_scratch_window(args, windows):
     for window in windows:
@@ -36,6 +38,21 @@ def find_scratch_window(args, windows):
             scratch_window["is_focused"] = window["is_focused"]
             scratch_window["is_floating"] = window["is_floating"]
             break
+
+def fetch_focused_workspace():
+    props = subprocess.run(
+        ["niri", "msg", "--json", "workspaces"],
+        capture_output=True,
+        text=True,
+    )
+    workspaces = json.loads(props.stdout)
+
+    # get the focused workspace
+    for workspace in workspaces:
+        if workspace["is_focused"]:
+            focused_workspace["idx"] = workspace["idx"]
+            focused_workspace["output"] = workspace["output"]
+            return workspace["id"]
 
 def ns(parser):
     args = parser.parse_args()
@@ -58,30 +75,17 @@ def ns(parser):
             parser.print_help()
             sys.exit(1)
 
-    # the scratchpad window exists but it's not focused
+    window_id = scratch_window["id"]
+
+    # the scratchpad window exists and it's focused
     if not scratch_window["is_focused"]:
-        props = subprocess.run(
-            ["niri", "msg", "--json", "workspaces"],
-            capture_output=True,
-            text=True,
-        )
-        workspaces = json.loads(props.stdout)
-
-        # get the focused workspace id
-        for workspace in workspaces:
-            is_focused = workspace["is_focused"]
-            if is_focused:
-                workspace_id = workspace["id"]
-                workspace_idx = workspace["idx"]
-                output_id = workspace["output"]
-                break
-
+        workspace_id = fetch_focused_workspace()
         # the window is not in the focused workspace
         if scratch_window["workspace_id"] != workspace_id:
-            bring_scratchpad_window_to_focus(args, workspace_idx, output_id)
+            bring_scratchpad_window_to_focus(window_id, args)
             return
 
-    move_window_to_scratchpad(args.animations)
+    move_window_to_scratchpad(window_id, args.animations)
 
 def main():
     parser = argparse.ArgumentParser(prog='nscratch', description='Niri Scratchpad support')
