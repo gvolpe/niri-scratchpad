@@ -123,7 +123,13 @@ The animation is achieved by switching the scratchpad window to tiling mode when
 
 ### Multiple monitors
 
-Multi-monitor support is coming soon and it can be enabled via the `multi-monitor` or `-m` flags. It is disabled by default because it requires an extra IPC command.
+Multi-monitor support can be enabled via the `--multi-monitor` or `-m` flags, e.g.
+
+```console
+$ nscratch -id nemo -m
+```
+
+It is disabled by default because it requires an extra IPC command, which is best to avoid on a single screen.
 
 ## Known Limitations
 
