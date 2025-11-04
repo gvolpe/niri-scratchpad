@@ -69,7 +69,7 @@ def ns(parser):
     # scratchpad does not yet exist, spawn?
     if not scratch_window:
         if args.spawn:
-            niri_cmd(["spawn", "--", args.spawn])
+            niri_cmd(["spawn", "--"] + args.spawn.split(' '))
             sys.exit(0)
         else:
             parser.print_help()
