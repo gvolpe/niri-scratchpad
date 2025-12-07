@@ -4,9 +4,9 @@
   inputs = {
     # nix doesn't need the full history, this should be the default ¯\_(ツ)_/¯
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
-    systems.url = github:nix-systems/default-linux;
+    systems.url = "github:nix-systems/default-linux";
     flake-utils = {
-      url = github:numtide/flake-utils;
+      url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
     };
   };
